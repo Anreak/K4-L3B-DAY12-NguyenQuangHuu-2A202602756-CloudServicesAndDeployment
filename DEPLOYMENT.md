@@ -1,41 +1,37 @@
 # Thông Tin Deploy — Checkpoint 5
 
-> Điền file này sau khi deploy xong. `pytest tests/test_cp5.py` đọc file này
-> để tìm địa chỉ service của bạn và gọi thử.
->
-> **Chỉ ghi TÊN biến môi trường, tuyệt đối không dán giá trị API key vào đây.**
-> Repo này công khai — dán khóa vào là mất khóa.
-
 ## Thông Tin Học Viên
 
 | Mục | Nội dung |
 |-----|----------|
-| Họ và tên | (điền họ tên) |
-| Mã học viên | (điền mã học viên) |
-| Repo | (điền link repo K4-L3B-DAY12-HoVaTen-MSSV-CloudServicesAndDeployment) |
+| Họ và tên | Nguyễn Quang Hữu |
+| Mã học viên | 2A202602756 |
+| Repo | https://github.com/Anreak/K4-L3B-DAY12-NguyenQuangHuu-2A202602756-CloudServicesAndDeployment |
 
 ## Service
 
 | Mục | Nội dung |
 |-----|----------|
-| Public URL | https://TODO-thay-bang-url-that.up.railway.app |
-| Platform | Railway / Render / Cloud Run — (điền platform bạn dùng) |
-| Ngày deploy | (điền ngày) |
+| Public URL | https://day12-agent-iedb.onrender.com |
+| Platform | Render (Blueprint-managed Docker web service) |
+| Ngày deploy | 2026-09-29 (ngày ghi nhận thông tin deployment) |
 
 ## Biến Môi Trường Đã Set Trên Cloud
 
-Ghi tên biến và **nguồn giá trị**, không ghi giá trị:
+Chỉ ghi tên biến, không ghi giá trị secret. Ảnh dashboard do chủ service cung cấp cho thấy các biến sau:
 
 | Biến | Đã set | Ghi chú |
 |------|--------|---------|
-| `PORT` | ✅ | platform tự gán |
-| `AGENT_API_KEY` | ✅ | đặt trong dashboard, không nằm trong repo |
-| `REDIS_URL` | ✅ | (điền: Redis add-on của platform / Upstash / ...) |
-| `RATE_LIMIT_PER_MINUTE` | ✅ | 10 |
-| `MONTHLY_BUDGET_USD` | ✅ | 10.0 |
-| `LOG_LEVEL` | ✅ | INFO |
+| `AGENT_API_KEY` | ✅ | Secret trong Render Environment|
+| `REDIS_URL` | ✅ | Redis service của Render  |
+| `RATE_LIMIT_PER_MINUTE` | ✅ | Đã cấu hình  |
+| `MONTHLY_BUDGET_USD` | ✅ | Đã cấu hình  |
+| `LOG_LEVEL` | ✅ | Đã cấu hình  |
+| `PORT` | — | platform cấp |
 
 ## Lệnh Kiểm Tra
+
+Các lệnh PowerShell tương ứng:
 
 Thay `<URL>` bằng Public URL ở trên:
 
@@ -66,36 +62,83 @@ for i in $(seq 1 15); do
     -H "X-User-Id: sv-test" \
     -d '{"question":"test"}'
 done; echo
-```
 
 ## Kết Quả Chạy Thật
+1:
+HTTP/1.1 200 OK
+Date: Tue, 29 Sep 2026 04:17:29 GMT
+Content-Type: application/json
+Transfer-Encoding: chunked
+Connection: keep-alive
+cf-cache-status: DYNAMIC
+rndr-id: 1f57db84-a137-418f
+Server: cloudflare
+vary: Accept-Encoding
+x-render-origin-server: uvicorn
+CF-RAY: a4282dac1b54fd3d-SIN
+alt-svc: h3=":443"; ma=86400
 
-Dán output của các lệnh trên vào đây:
+{"status":"ok","service":"day12-agent","version":"1.0.0"}
 
-```
-(điền output)
-```
+2:
+HTTP/1.1 200 OK
+Date: Tue, 29 Sep 2026 04:18:01 GMT
+Content-Type: application/json
+Transfer-Encoding: chunked
+Connection: keep-alive
+cf-cache-status: DYNAMIC
+rndr-id: 2768f7fe-7932-4108
+Server: cloudflare
+vary: Accept-Encoding
+x-render-origin-server: uvicorn
+CF-RAY: a4282e76af83f87a-SIN
+alt-svc: h3=":443"; ma=86400
 
-## Ảnh Chụp Màn Hình
+{"status":"ready","redis":true}
+
+3:
+HTTP/1.1 401 Unauthorized
+Date: Tue, 29 Sep 2026 04:18:56 GMT
+Content-Type: application/json
+Transfer-Encoding: chunked
+Connection: keep-alive
+cf-cache-status: DYNAMIC
+rndr-id: 16c64fa3-e541-425f
+Server: cloudflare
+vary: Accept-Encoding
+x-render-origin-server: uvicorn
+CF-RAY: a4282fce2869ce7a-SIN
+alt-svc: h3=":443"; ma=86400
+
+4:
+HTTP/1.1 200 OK
+Date: Tue, 29 Sep 2026 04:58:19 GMT
+Content-Type: application/json
+Transfer-Encoding: chunked
+Connection: keep-alive
+rndr-id: 372df7c0-40f5-447a
+Server: cloudflare
+vary: Accept-Encoding
+x-render-origin-server: uvicorn
+cf-cache-status: DYNAMIC
+CF-RAY: a428697faaf704ed-HKG
+alt-svc: h3=":443"; ma=86400
+
+{"answer":"Câu hỏi hay. test thường được giải quyết bằng cách chuẩn hóa môi trường chạy: cùng một image chạy giống nhau ở laptop và trên cloud.","user_id":"sv-test","history_length":0,"cost_usd":1.995e-05,"tokens":{"in":1,"out":33}}
+
+5:
+PS D:\VInCode\K4-L3B-DAY12-NguyenQuangHuu-2A202602756-CloudServicesAndDeployment> 1..15 | ForEach-Object {
+>>     $code = & curl.exe -s -o NUL -w "%{http_code}" -X POST "$url/ask" `
+>>         -H "Content-Type: application/json" `
+>>         -H "X-API-Key: $apiKey" `
+>>         -H "X-User-Id: sv-test" `
+>>         --data-binary "@$bodyFile"
+>>     Write-Host -NoNewline "$code "
+>> }
+200 200 200 200 200 200 200 200 200 429 429 429 429 429 429
 
 Đặt ảnh trong thư mục `screenshots/`:
 
 - `screenshots/dashboard.png` — trang quản lý service trên platform
 - `screenshots/health.png` — kết quả gọi `/health` từ trình duyệt hoặc curl
 
----
-
-## Nếu Dùng Phương Án Dự Phòng
-
-Không đăng ký được tài khoản cloud? Vẫn nộp được bài, nhưng CP5 tối đa 60% điểm:
-
-1. Đặt `LOCAL_FALLBACK=true` trong `.env`
-2. Chạy `docker compose up -d` rồi kiểm tra `docker compose ps`
-3. Chụp màn hình vào `screenshots/`
-4. Chạy `pytest tests/test_cp5.py -v` — bộ test sẽ tự chuyển sang kiểm tra
-   `http://localhost:8000`
-5. Ghi rõ lý do không deploy được vào phần dưới đây:
-
-```
-(điền lý do nếu dùng phương án dự phòng, ngược lại xóa mục này)
-```
